@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 using namespace std;
 
 #pragma once
@@ -11,24 +12,27 @@ private:
   int imaginaryPart;
   int imaginaryPower;
 public:
-  ComplexNumber(int, int, int);
+  ComplexNumber(int = 0, int = 0, int = 1);
   int getRealPart();
   int getImaginaryPart();
   int getImaginaryPower();
   ComplexNumber getConjugation();
+  double getModule();
+  double getArgument();
   void setRealPart(int);
   void setImaginaryPart(int);
   void setImaginaryPower(int);
   void simplify();
   friend istream& operator>>(istream&, ComplexNumber&);
   friend ostream& operator<<(ostream&, ComplexNumber);
-  friend ComplexNumber operator+(const ComplexNumber, const ComplexNumber);
-  friend ComplexNumber operator-(const ComplexNumber, const ComplexNumber);
-  friend ComplexNumber operator*(const ComplexNumber, const ComplexNumber);
-  // friend ComplexNumber operator/(const ComplexNumber, const ComplexNumber);
+  friend ComplexNumber operator+(ComplexNumber, ComplexNumber);
+  friend ComplexNumber operator-(ComplexNumber, ComplexNumber);
+  friend ComplexNumber operator*(ComplexNumber, ComplexNumber);
+  friend ComplexNumber operator/(ComplexNumber, ComplexNumber);
+  friend bool operator==(ComplexNumber, ComplexNumber);
 };
 
-ComplexNumber::ComplexNumber(int realPart = 0, int imaginaryPart = 0, int imaginaryPower = 1)
+ComplexNumber::ComplexNumber(int realPart, int imaginaryPart, int imaginaryPower)
 {
   this->realPart = realPart;
   this->imaginaryPart = imaginaryPart;
@@ -54,6 +58,16 @@ int ComplexNumber::getImaginaryPower()
 ComplexNumber ComplexNumber::getConjugation()
 {
   return ComplexNumber(this->realPart, -this->imaginaryPart, this->imaginaryPower);
+}
+
+double ComplexNumber::getModule()
+{
+  return sqrt(pow(this->realPart, 2) + pow(this->imaginaryPart, 2));
+}
+
+double ComplexNumber::getArgument()
+{
+  return acos(this->realPart / this->getModule());
 }
 
 void ComplexNumber::setRealPart(int realPart)
@@ -118,24 +132,31 @@ ostream& operator<<(ostream& os, ComplexNumber number)
   return os;
 }
 
-ComplexNumber operator+(const ComplexNumber a, const ComplexNumber b)
+ComplexNumber operator+(ComplexNumber a, ComplexNumber b)
 {
   return ComplexNumber(a.realPart + b.realPart, a.imaginaryPart + b.imaginaryPart);
 }
 
-ComplexNumber operator-(const ComplexNumber a, const ComplexNumber b)
+ComplexNumber operator-(ComplexNumber a, ComplexNumber b)
 {
   return ComplexNumber(a.realPart - b.realPart, a.imaginaryPart - b.imaginaryPart);
 }
 
-ComplexNumber operator*(const ComplexNumber a, const ComplexNumber b)
+ComplexNumber operator*(ComplexNumber a, ComplexNumber b)
 {
   int newRealPart = a.realPart * b.realPart - a.imaginaryPart * b.imaginaryPart;
   int newImaginaryPart = a.realPart * b.imaginaryPart + b.realPart * a.imaginaryPart;
   return ComplexNumber(newRealPart, newImaginaryPart);
 }
 
-// ComplexNumber operator/(const ComplexNumber a, const ComplexNumber b)
-// {
-//   ComplexNumber 
-// }
+ComplexNumber operator/(ComplexNumber a, ComplexNumber b)
+{
+  ComplexNumber first = a * b.getConjugation();
+  ComplexNumber second = (b.imaginaryPart == 0) ? b : b * b.getConjugation();
+  return ComplexNumber(first.realPart / second.realPart, first.imaginaryPart / second.realPart, first.imaginaryPower);
+}
+
+bool operator==(ComplexNumber a, ComplexNumber b)
+{
+  return a.realPart == b.realPart && a.imaginaryPart == b.imaginaryPart;
+}
